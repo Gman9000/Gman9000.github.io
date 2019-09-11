@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Introduction to Three.js</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+    />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/108/three.js"></script>
+    <script src="vendor/three.js/Detector.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three-trackballcontrols-web@0.0.2/dist/three-trackballcontrols.js"></script>
+
+    <script src="vendor/threex/THREEx.FullScreen.js"></script>
+    <script src="vendor/threex/THREEx.WindowResize.js"></script>
+    <script src="vendor/threex.dragpancontrols.js"></script>
+
+    <link href="css/main.css" rel="stylesheet" />
+  </head>
+  <body>
+    <!-- three.js container -->
+    <div id="container"></div>
+    <!-- info on screen display -->
+
+    <script type="text/javascript">
+      var stats, scene, renderer;
+      var camera, cameraControl;
+      var xSpeed = 0.3;
+      var ySpeed = 0.3;
+      var zSpeed = 0.3;
+	  var xMaxBoundary = 20;
+	  var xMinBoundary = -20;
+	  var yMinBoundary = 0;
+	  var yMaxBoundary = 10;
+	  var zMaxBoundary = 20;
+	  var zMinBoundary = -20;
+
+      if (!init()) animate();
+
+      // init the scene
+      function init() {
+        renderer = new THREE.WebGLRenderer({
+          antialias: true, // to get smoother output
+          preserveDrawingBuffer: true // to allow screenshot
+        });
+
+        renderer.setClearColor(0x191970, 1);
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById("container").appendChild(renderer.domElement);
+
+        // create a scene
+        scene = new THREE.Scene();
+
+        // put a camera in the scene
+        camera = new THREE.PerspectiveCamera(
+          45,
+          window.innerWidth / window.innerHeight,
+          1,
+          10000
+        );
+		camera.position.set(0, 5, 15);
+        
+		scene.add(camera);
+
+        // create a camera contol
+        // cameraControls	= new THREEx.DragPanControls(camera)
+        cameraControls = new TrackballControls(camera);
+        //manipulation of the internal properties of the camera
+
+        // transparently support window resize (press `f`)
+        THREEx.WindowResize.bind(renderer, camera);
+        THREEx.FullScreen.bindKey();
+
+        // Add lights to the scene
+		//parameter 1: sky is blueish
+		//parameter 2: ground and shadowy effects are lime greenish
+		var light = new THREE.HemisphereLight( 0x0000ff, 0x00ff00, 0.4 ); 
+        scene.add(light);
+		
+		// THESE ARE LIGHTS FROM CLASSWORK.
+		//var light = new THREE.AmbientLight(0xFFFF00,0.5);
+        //scene.add(light);
+
+        /*var light = new THREE.DirectionalLight(Math.random() * 0xffffff);
+        light.position
+          .set(Math.random(), Math.random(), Math.random())
+          .normalize();
+        scene.add(light);*/
+
+        /*var light = new THREE.DirectionalLight(Math.random() * 0xffffff);
+        light.position
+          .set(Math.random(), Math.random(), Math.random())
+          .normalize();
+        scene.add(light);*/
+
+        // here you add your objects
+        // - you will most likely replace this part by your own
+
+        // adding the player here
+		var player, playerMaterial, playerMesh, geometry, material, mesh;
+		var cameraZOffset = 15;
+        //Torus THE PLAYER
+        player = new THREE.TorusGeometry(0.5, 0.25);
+        /*var playerMaterial = new THREE.MeshPhongMaterial({
+          ambient: 0x808080,
+          color: new THREE.Color(0, 1, 0)
+          //color: Math.random() * 0xffffff
+        });*/
+		//var playerMaterial = new THREE.MeshNormalMaterial();
+		var playerMaterial	= new THREE.MeshToonMaterial({ambient: 0x808080, color: new THREE.Color(0, 1, 0)} );
+        playerMaterial.flatShading = true;
+		var playerMesh = new THREE.Mesh(player, playerMaterial);
+        playerMesh.position.set(0, 0, 0);
+        //add mesh to the scene
+        scene.add(playerMesh);
+
+        //370 park side cube
+        var geometry = new THREE.CubeGeometry(1, 10, 40);
+        var material = new THREE.MeshPhongMaterial({
+          ambient: 0x808080,
+          color: 0x808080
+        });
+        var mesh = new THREE.Mesh(geometry, material);
+        mesh.position.set(-15, 5, 0);
+
+        //add mesh to the scene
+        scene.add(mesh);
+
+		//subway side cube
+        var geometry = new THREE.CubeGeometry(10, 10, 15);
+        var material = new THREE.MeshPhongMaterial({
+          ambient: 0x808080,
+          color: 0x808080
+        });
+        var mesh = new THREE.Mesh(geometry, material);
+        mesh.position.set(-5, 5, 10);
+		
+		//add mesh to the scene
+        scene.add(mesh);
+
+		//Main Campus Cube
+        var geometry = new THREE.CubeGeometry(10, 10, 15);
+        var material = new THREE.MeshPhongMaterial({
+          ambient: 0x808080,
+          color: 0x808080
+        });
+        var mesh = new THREE.Mesh(geometry, material);
+        mesh.position.set(-5, 5, -10);
+
+        //add mesh to the scene
+        scene.add(mesh);
+
+		//Library Cube
+        var geometry = new THREE.CubeGeometry(5, 10, 10);
+        var material = new THREE.MeshPhongMaterial({
+          ambient: 0x808080,
+          color: 0x808080
+        });
+        var mesh = new THREE.Mesh(geometry, material);
+        mesh.position.set(10, 5, -15);
+
+        //add mesh to the scene
+        scene.add(mesh);
+
+		// Forest Area Cube
+        var geometry = new THREE.CubeGeometry(10, 1, 5);
+        var material = new THREE.MeshPhongMaterial({
+          ambient: 0x808080,
+          color: 0x808080
+        });
+        var mesh = new THREE.Mesh(geometry, material);
+        mesh.position.set(10, 0.5, -5);
+
+        //add mesh to the scene
+        scene.add(mesh);
+
+		// five guys Area Cube
+        var geometry = new THREE.CubeGeometry(10, 5, 20);
+        var material = new THREE.MeshPhongMaterial({
+          ambient: 0x808080,
+          color: 0x808080
+        });
+        var mesh = new THREE.Mesh(geometry, material);
+        mesh.position.set(15, 2.5, 10);
+
+        //add mesh to the scene
+        scene.add(mesh);
+
+		//i had to google how to do this properly.
+		//increase the steps to make squares bigger. must be divisible by the size
+		var size = 20,
+		steps = 2;
+
+		geometry = new THREE.Geometry();
+		material = new THREE.LineBasicMaterial({
+			color: 'red'
+		});
+
+		for (var i = -size; i <= size; i += steps) {
+		//draw lines one way
+		geometry.vertices.push(new THREE.Vector3(-size, -0.04, i));
+		geometry.vertices.push(new THREE.Vector3(size, -0.04, i));
+
+		//draw lines the other way
+		geometry.vertices.push(new THREE.Vector3(i, -0.04, -size));
+		geometry.vertices.push(new THREE.Vector3(i, -0.04, size));
+		}
+
+		//THREE.LinePieces prevents connecting of vertices
+		var line = new THREE.LineSegments(geometry, material, THREE.LinePieces);
+		scene.add(line);
+
+		// this is to control the playerMesh Object
+        document.addEventListener("keydown", onDocumentKeyDown, false);
+        function onDocumentKeyDown(event) {
+          // Get the key code of the pressed key
+          var keyCode = event.which;
+          // moving up Z
+          if (keyCode == 38) {
+			if(playerMesh.position.z > zMinBoundary){
+		  	  playerMesh.position.set(
+              playerMesh.position.x,
+              playerMesh.position.y,
+              playerMesh.position.z - zSpeed
+			  //because of our orientation moving up is actually going down in z value
+			  );
+			}
+
+            // moving down Z
+          } else if (keyCode == 40) {
+				if(playerMesh.position.z < zMaxBoundary){
+					playerMesh.position.set(
+					playerMesh.position.x,
+					playerMesh.position.y,
+					playerMesh.position.z + zSpeed
+					);
+				}
+
+            // moving left x
+          } else if (keyCode == 37) {
+			if(playerMesh.position.x > xMinBoundary){
+				playerMesh.position.set(
+				playerMesh.position.x - xSpeed,
+				playerMesh.position.y,
+				playerMesh.position.z
+				);
+			}
+
+            // moving right x
+          } else if (keyCode == 39) {
+				if(playerMesh.position.x < xMaxBoundary){
+					playerMesh.position.set(
+					playerMesh.position.x + xSpeed,
+					playerMesh.position.y,
+					playerMesh.position.z
+					);
+				}
+          }
+
+          // moving up y pressing shift
+          else if (keyCode == 16) {
+			if(playerMesh.position.y < yMaxBoundary){
+				playerMesh.position.set(
+				playerMesh.position.x,
+				playerMesh.position.y + ySpeed,
+				playerMesh.position.z
+				);
+			}
+          }
+
+          //moving down y pressing ctrl
+          else if (keyCode == 17) {
+			if(playerMesh.position.y > yMinBoundary){
+				playerMesh.position.set(
+				playerMesh.position.x,
+				playerMesh.position.y - ySpeed,
+				playerMesh.position.z
+				);
+			}
+          }
+		camera.position.set(playerMesh.position.x, playerMesh.position.y +5, playerMesh.position.z + cameraZOffset);
+		cameraControls.target.set(playerMesh.position.x, playerMesh.position.y, playerMesh.position.z);
+        }
+      }
+
+      // animation loop called every frame
+      function animate() {
+        requestAnimationFrame(animate);
+        //this will only be called once the previous frame is completed and not before
+
+        // do the render
+        render();
+      }
+      // look into rendertarget
+      // render the scene
+      function render() {
+        // variable which is increase by Math.PI every seconds - usefull for animation
+        var deltaTime = Date.now() * Math.PI;
+
+        // update camera controls
+        cameraControls.update();
+
+        // actually render the scene
+		 renderer.render(scene, camera);
+      }
+    </script>
+  </body>
+</html>
