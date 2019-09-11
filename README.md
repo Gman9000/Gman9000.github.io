@@ -1,6 +1,10 @@
-## Welcome to GitHub Pages
+## Welcome to Granville's Readme! I will be updating the readme with links to each hw
 
-You can use the [editor on GitHub](https://github.com/Gman9000/Gman9000.github.io/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
+Here is the Link to Homework #1 [CLICK HERE](https://Gman9000.github.io/GranvilleCreativeWeb.github.io/gj506HW1.html) to view
+
+
+
+
 
 Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
 
