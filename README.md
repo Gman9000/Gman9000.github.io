@@ -1,8 +1,18 @@
 ## Welcome to Granville's Readme! I will be updating the readme with links to each hw
 
+# Week One
+
 Here is the Link to Homework #1 [CLICK HERE](https://Gman9000.github.io/GranvilleCreativeWeb.github.io/gj506HW1.html) to view
 
-
+# Week Two
+# Week Three
+# Week Four
+# Week Five
+# Week Six
+# Week Seven
+# Week Eight
+# Week Nine
+# Week Ten
 
 
 
