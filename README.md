@@ -1,7 +1,13 @@
 ## Welcome to Granville's Readme! I will be updating the readme with links to each hw
 
 # Week One
-
+Controls: 
+up arrow: moves up the Z plane 
+Down arrow: moves down the Z plane 
+left arrow: move leftwards on the x plane
+right arrow: moves rightwards on the x plane
+shift key: moves up the y plane vertically
+ctrl key: moves down the y plane vertically
 Here is the Link to Homework #1 [CLICK HERE](https://Gman9000.github.io/GranvilleCreativeWeb.github.io/gj506HW1.html) to view
 
 # Week Two
