@@ -12,7 +12,8 @@ Controls:
 
 # Week Two
 - the controls are the same
-- Note: the performance is poorer than I anticipated. Granville, please talk to the professor about this during break time.
+- the rotation of the camera is yet to be fixed
+- the raycasting is non-functional but was taken from the class example. Granville, please talk to the Professor about this during break
 - Here is the Link to Homework #2 [CLICK HERE](https://Gman9000.github.io/GranvilleCreativeWeb.github.io/gj506HW2.html) to view
 # Week Three
 # Week Four
