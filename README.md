@@ -11,6 +11,9 @@ Controls:
 - Here is the Link to Homework #1 [CLICK HERE](https://Gman9000.github.io/GranvilleCreativeWeb.github.io/gj506HW1.html) to view
 
 # Week Two
+- the controls are the same
+- Note: the performance is poorer than I anticipated. Granville, please talk to the professor about this during break time.
+- Here is the Link to Homework #2 [CLICK HERE](https://Gman9000.github.io/GranvilleCreativeWeb.github.io/gj506HW2.html) to view
 # Week Three
 # Week Four
 # Week Five
