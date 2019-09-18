@@ -15,6 +15,7 @@ Controls:
 - the rotation of the camera is yet to be fixed
 - the raycasting is functional but had to be tweaked a bit and turned into a toggle.
 - Here is the Link to Homework #2 [CLICK HERE](https://Gman9000.github.io/GranvilleCreativeWeb.github.io/gj506HW2.html) to view
+- for the improved homework while moving you can't interact with buildings to make sure things move smoothly.
 - Here is the link to a more improved Homework #2 [CLICK HERE](https://Gman9000.github.io/GranvilleCreativeWeb.github.io/gj506HW2ImprovedSlightly.html) to view
 # Week Three
 # Week Four
