@@ -13,7 +13,7 @@ Controls:
 # Week Two
 - the controls are the same
 - the rotation of the camera is yet to be fixed
-- the raycasting is non-functional but was taken from the class example. Granville, please talk to the Professor about this during break
+- the raycasting is functional but had to be tweaked a bit. Granville, please talk to the Professor about this during break
 - Here is the Link to Homework #2 [CLICK HERE](https://Gman9000.github.io/GranvilleCreativeWeb.github.io/gj506HW2.html) to view
 # Week Three
 # Week Four
