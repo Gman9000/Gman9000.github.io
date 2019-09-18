@@ -26,7 +26,7 @@
     <!-- three.js container -->
     <div id="container"></div>
     <div id="info">
-      <h1 class="top">Click to turn on building interaction.</h1>
+      <h1 class="top">Click to toggle building interaction.</h1>
     </div>
     <!-- info on screen display -->
 
@@ -423,13 +423,13 @@
         });
 
         window.addEventListener("click", function(event) {
-          shouldRaycast = true;
-          /*if (shouldRaycast) {
+          //shouldRaycast = true;
+          if (shouldRaycast) {
             //toggle it off
             shouldRaycast = false;
           } else {
             shouldRaycast = true;
-          }*/
+          }
           //console.log("BRUH");
         });
 
