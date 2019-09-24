@@ -17,7 +17,14 @@ Controls:
 - Here is the Link to Homework #2 [CLICK HERE](https://Gman9000.github.io/GranvilleCreativeWeb.github.io/gj506HW2.html) to view
 - for the improved homework while moving you can't interact with buildings to make sure things move smoothly.
 - Here is the link to a more improved Homework #2 [CLICK HERE](https://Gman9000.github.io/GranvilleCreativeWeb.github.io/gj506HW2ImprovedSlightly.html) to view
+
 # Week Three
+- the controls are the same
+- the rotation of the camera is yet to be fixed
+- the raycasting remains the same
+- attempted to add a canvas to view a video about new york for added interaction in the map but it is not functional. will update in the future
+- Here is the Link to Homework #3 [CLICK HERE](https://Gman9000.github.io/GranvilleCreativeWeb.github.io/gj506HW3.html) to view
+
 # Week Four
 # Week Five
 # Week Six
