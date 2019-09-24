@@ -22,7 +22,7 @@ Controls:
 - the controls are the same
 - the rotation of the camera is yet to be fixed
 - the raycasting remains the same
-- attempted to add a canvas to view a video about new york for added interaction in the map but it is not functional. will update in the future
+- attempted to add a canvas to view a video (it will be heroes of the storm gameplay for now) for added interaction in the map but it is not functional. Will update in the future
 - Here is the Link to Homework #3 [CLICK HERE](https://Gman9000.github.io/GranvilleCreativeWeb.github.io/gj506HW3.html) to view
 
 # Week Four
