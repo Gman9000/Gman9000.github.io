@@ -26,6 +26,12 @@ Controls:
 - Here is the Link to Homework #3 [CLICK HERE](https://Gman9000.github.io/GranvilleCreativeWeb.github.io/gj506HW3.html) to view
 
 # Week Four
+- VR experience on Mobile
+- same map but your gaze interacts with the buildings instead of you moving around
+- i tried to implement motion to movement but that proved to be challenging. i'll probably do that in the next iteration of this project
+- ambient music is in now! the phone forced me to do user interaction to start it so i decided to make it happen on a touch input which the user has to do in order to start the VR experience anyway
+- Here is the link to Homework #4 [CLICK HERE](https://Gman9000.github.io/The-Creative-Web - Granville's HW/classes/class 4/examples/index.html) to view
+
 # Week Five
 # Week Six
 # Week Seven
