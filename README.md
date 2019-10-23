@@ -39,7 +39,6 @@ Controls:
 # Week Seven
 - Musical experience
 - you play the C4 major scale on objects in the browser with synthesized background music
-- please start an http-server in your local machine so that google doesn't complain
 - Here is the link to Homework #6 ? um... 7? whatever [CLICK HERE](https://Gman9000.github.io/The-Creative-Web-Sound-HW/classes/class6/examples/index.html) to view
 - class6 (no spaces is the correct folder. the other is an accidental upload that i will remove at a later time when i am less sleep-deprived)
 # Week Eight
