@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Introduction to Three.js - Raycasting</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+    />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/108/three.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three-trackballcontrols-web@0.0.2/dist/three-trackballcontrols.js"></script>
+    <script src="https://unpkg.com/tone"></script>
+
+    <style>
+      body {
+        overflow: hidden;
+        padding: 0;
+        margin: 0;
+
+        color: #222;
+        background: linear-gradient(to bottom, #eee 0%, #ccc 100%);
+        font-family: monospace;
+        font-size: 100%;
+      }
+      #info .top {
+        position: absolute;
+        top: 0px;
+        width: 100%;
+        padding: 5px;
+        text-align: center;
+      }
+      #info a {
+        color: #66f;
+        text-decoration: none;
+      }
+      #info a:hover {
+        text-decoration: underline;
+      }
+      #info .bottom {
+        position: absolute;
+        bottom: 0px;
+        right: 5px;
+        padding: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- three.js container -->
+    <div id="container"></div>
+    <div id="info">
+      <p class="top">
+        Click on a cube to interact with it. Clicking anywhere starts the
+        background music
+      </p>
+    </div>
+    <!-- info on screen display -->
+
+    <script type="text/javascript">
+      /*
+            	Three.js Setup
+            */
+
+      var stats, scene, renderer;
+      var camera, shouldRaycast;
+      var clicked = false;
+      var justOneIntersection = [];
+      var time;
+
+      var cameraTarget = new THREE.Vector3(0, 0, 0);
+      var raycaster = new THREE.Raycaster();
+      var mouse = new THREE.Vector2();
+      var currentMesh;
+
+      /*
+            	Tone.js Setup
+            */
+
+      const notes = ["C4", "D4", "E4", "F4", "G4", "A4", "B4", "C5"];
+
+      // Define two synths for drums and notes
+      //const backgroundSynth = new Tone.Synth().toMaster();
+      // var backgroundSynth = new Tone.PolySynth(3, Tone.Synth, {
+      //   oscillator: {
+      //     type: "square"
+      //   }
+      // }).toMaster();
+
+      const synth = new Tone.PolySynth().toMaster();
+
+      //pass in an array of events
+      var part = new Tone.Part(
+        function(time, event) {
+          //the events will be given to the callback with the time they occur
+          synth.set("volume", -10);
+          synth.triggerAttackRelease(event.note, event.dur, time);
+        },
+        [
+          { time: 0, note: ["C3"], dur: "4n" },
+          { time: 0, note: ["C4", "E4"], dur: "2n" },
+          { time: "n", note: ["E4", "G4"], dur: "8n" },
+          { time: "2n", note: ["G4", "B4"], dur: "16n" },
+          { time: "3n", note: "E4", dur: "16n" },
+          { time: "4n", note: "C4", dur: "16n" },
+          { time: "4.5n", note: ["G4", "E4"], dur: "16n" },
+          { time: "6n", note: "E4", dur: "16n" }
+        ]
+      );
+      part.start(0);
+      part.loop = true;
+      //start the part at the beginning of the Transport's timeline
+
+      const noteSynth = new Tone.Synth().toMaster();
+
+      //create a loop
+      const loop = new Tone.Loop(function(time) {
+        // Play synth
+        //part.start(0);
+        //part.loop = true;
+        //backgroundSynth.set("volume", -40);
+        //backgroundSynth.triggerAttackRelease(["C5", "E5"], "8n", time);
+        //backgroundSynth.triggerAttackRelease(["C5", "E5"], "8n", time);
+
+        // Change color of Three.js spheres
+        scene.traverse(function(object3d, i) {
+          // Check if the current object is a THREE.Mesh (rather than a light, camera, etc.)
+          if (object3d instanceof THREE.Mesh === false) return;
+
+          // Assign new random color to each mesh in the scene
+          object3d.material.color = new THREE.Color(Math.random() * 0xffffff);
+        });
+      }, "2n");
+
+      // // Start the loop
+      // loop.start(0);
+
+      // // Start the Tone.js transport (like hitting play)
+      // Tone.Transport.start();
+
+      // Bootstrap the animation
+      init();
+      animate();
+
+      // function enableAudio() {
+      //   audioLoader.load("TobyFox-Megalovania.mp3", function(buffer) {
+      //     sound.setBuffer(buffer);
+      //     sound.setLoop(true);
+      //     sound.setVolume(0.5);
+      //     sound.play();
+      //   });
+      // }
+
+      function addLights() {
+        /* Lights */
+
+        // Add lights to the scene
+        var light1 = new THREE.AmbientLight(Math.random() * 0xffffff);
+        scene.add(light1);
+
+        // Add random directional light at random position
+        var light2 = new THREE.DirectionalLight(Math.random() * 0xffffff);
+        light2.position
+          .set(Math.random(), Math.random(), Math.random())
+          .normalize()
+          .multiplyScalar(3);
+        light2.lookAt(cameraTarget); // Tell the camera to aim at our cameraTarget
+        scene.add(light2);
+
+        // Add another random light
+        var light3 = new THREE.DirectionalLight(Math.random() * 0xffffff);
+        light3.position
+          .set(Math.random(), Math.random(), Math.random())
+          .normalize()
+          .multiplyScalar(3);
+        light3.lookAt(cameraTarget); // Tell the camera to aim at our cameraTarget
+        scene.add(light3);
+      }
+
+      // init the scene
+      function init() {
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0xffffff, 0);
+
+        // Append the renderer's <canvas> element to the screen
+        document.getElementById("container").appendChild(renderer.domElement);
+
+        // Resize canvas when the screen resizes
+        document.addEventListener(
+          "resize",
+          function() {
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+            renderer.setSize(width, height);
+          },
+          false
+        );
+
+        document.addEventListener(
+          "click",
+          function() {
+            if (!clicked) {
+              //audioLoader.load("TobyFox-Megalovania.mp3", function(buffer) {
+              // audioLoader.load("ExploringTown.ogg", function(buffer) {
+              //   sound.setBuffer(buffer);
+              //   sound.setLoop(true);
+              //   sound.setVolume(0.5);
+              //   sound.play();
+              // });
+              clicked = true;
+              // Start the loopht
+              loop.start(0);
+
+              // Start the Tone.js transport (like hitting play)
+              Tone.Transport.start();
+            }
+          },
+          false
+        );
+
+        // create the root scene
+        scene = new THREE.Scene();
+
+        /* Camera */
+
+        // create the view camera
+        camera = new THREE.PerspectiveCamera(
+          45,
+          window.innerWidth / window.innerHeight,
+          1,
+          20
+        );
+        camera.position.set(0, 8, 1); // Position the camera above and away from the scene
+        camera.lookAt(cameraTarget); // Tell the camera to aim at our cameraTarget
+        scene.add(camera);
+
+        // create an AudioListener and add it to the camera
+        var listener = new THREE.AudioListener();
+        camera.add(listener);
+
+        // create a global audio source
+        var sound = new THREE.Audio(listener);
+
+        // load a sound and set it as the Audio object's buffer
+        var audioLoader = new THREE.AudioLoader();
+
+        addLights();
+
+        /* Geometry */
+
+        var geometry, material, mesh, randomPoint;
+        var numCubes = 8;
+        var cubes = [];
+
+        for (let i = 0; i < numCubes; i++) {
+          // Create geometry
+          geometry = new THREE.SphereGeometry(0.5, 0.5, 0.5);
+
+          // Create a new material for every mesh so we can color them separately
+          material = new THREE.MeshPhongMaterial({
+            color: Math.random() * 0xffffff
+          });
+          material.flatShading = true;
+
+          // change this to in a line
+          pointX = -5 + 1.1 * i;
+          pointZ = 0;
+          // pointX = Math.sin(2 * Math.PI * (i / numCubes));
+          // pointZ = Math.cos(2 * Math.PI * (i / numCubes));
+
+          mesh = new THREE.Mesh(geometry, material);
+          mesh.position.set(pointX, 0.5, pointZ);
+          mesh.rotation.set(0.5, 0.5, 0.5);
+          mesh.n = Math.random();
+
+          // assign a musical note to every sphere
+          mesh.note = notes[i];
+
+          // Add mesh to the scene
+          scene.add(mesh);
+          cubes.push(mesh);
+        }
+      }
+
+      // animation loop
+      function animate() {
+        // Call the function again when the browser is free
+        requestAnimationFrame(animate);
+
+        // do the render
+        render();
+      }
+
+      // render the scene
+      function render() {
+        /* Raycasting */
+
+        var hits = [];
+        if (shouldRaycast) {
+          // check if mouse is pressed
+          // Perform a ray cast from the camera, in the direction of the mouse in 3d space
+          raycaster.setFromCamera(mouse, camera);
+
+          // Extract intersected objects (from a particular scene or parent Object3D)
+          var intersections = raycaster.intersectObjects(scene.children);
+          if (intersections.length > 0) {
+            justOneIntersection[0] = intersections[0];
+          }
+
+          // Log all intersections
+          // console.log(intersections)
+
+          // Map intersected meshes to the hits array
+          //hits = intersections.map(intersection => intersection.object);
+          hits = justOneIntersection.map(intersection => intersection.object);
+        }
+
+        // variable which is increase by Math.PI every seconds - usefull for animation
+        time = Date.now() * Math.PI;
+
+        // actually render the scene
+        renderer.render(scene, camera);
+
+        // // Rotate view camera around scene
+        // var x = camera.position.x;
+        // var z = camera.position.z;
+
+        // camera.position.x = x * Math.cos(0.01) + z * Math.sin(0.01);
+        // camera.position.z = z * Math.cos(0.01) - x * Math.sin(0.01);
+
+        // // re-Rotate the camerea to look at the cameraTarget at the center of the scene
+        // camera.lookAt(cameraTarget);
+
+        // iterate over all objects in a scene
+        scene.traverse(function(object3d, i) {
+          // Check if the current object is a THREE.Mesh (rather than a light, camera, etc.)
+          if (object3d instanceof THREE.Mesh === false) return;
+
+          // Rotate object based on `n` coefficient
+          object3d.rotateY(0.01 * object3d.n);
+          object3d.rotateX(0.02 * object3d.n);
+          object3d.rotateZ(0.03 * object3d.n);
+
+          /* Try animating transitions here! */
+
+          // Check if current mesh is hit by the raycast
+          if (hits.includes(object3d)) {
+            object3d.scale.set(1.2, 1.2, 1.2);
+
+            if (object3d !== currentMesh)
+              noteSynth.triggerAttackRelease(object3d.note, "8n");
+
+            currentMesh = object3d;
+          } else object3d.scale.set(1, 1, 1);
+        });
+        //hits = [];
+      }
+
+      window.addEventListener("mousemove", function(event) {
+        // calculate mouse position in normalized device coordinates
+        // (-1 to +1) for both components
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+      });
+
+      window.addEventListener("mousedown", function(event) {
+        shouldRaycast = true;
+      });
+
+      window.addEventListener("mouseup", function(event) {
+        shouldRaycast = false;
+        //to allow multiple presses of the same object for tone purposes.
+        currentMesh = null;
+      });
+    </script>
+  </body>
+</html>
