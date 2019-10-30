@@ -41,7 +41,22 @@ Controls:
 - you play the C4 major scale on objects in the browser with synthesized background music
 - Here is the link to Homework #6 ? um... 7? whatever [CLICK HERE](https://Gman9000.github.io/The-Creative-Web-Sound-HW/classes/class6/examples/index.html) to view
 - class6 (no spaces is the correct folder. the other is an accidental upload that i will remove at a later time when i am less sleep-deprived)
+
 # Week Eight
+Controls: 
+- up arrow: moves up the Z plane 
+- Down arrow: moves down the Z plane 
+- left arrow: move leftwards on the x plane
+- right arrow: moves rightwards on the x plane
+- shift key: moves up the y plane vertically
+- ctrl key: moves down the y plane vertically
+-Muiscal interaction
+-you can move around in a 3d grid and listen to 4 different songs as they move about in the space
+-proof of concept: spatialization of songs in a 3d space
+-if you near an object that song will play more than the other songs in the other objects
+-things for next week: making sure i break apart ONE song into it's components and put those into objects instead of just having 4 separate songs in different objects.
+Here is the link to Homework #7 [CLICK HERE](https://Gman9000.github.io/The-Creative-Web-Sound-HW2/classes/class7/examples/class7notes.html) to view
+
 # Week Nine
 # Week Ten
 
