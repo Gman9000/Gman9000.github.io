@@ -61,7 +61,7 @@ Here is the link to Homework #7 [CLICK HERE](https://Gman9000.github.io/The-Crea
 Controls: 
 - MIDI controller with 16 buttons and gyroscope in it 
 - tilting the controller will move the object in different directions
-- pressing the bottom left hand corner button will start and stop the music
+- pressing the bottom left hand corner button while the second button in the top row of buttons are highlighted will start and stop the music
 Here is the link to Homework #8 [CLICK HERE](https://Gman9000.github.io/The-Creative-Web-MIDI-CLASSWORK/classes/class8/examples/midi-three.html) to view
 # Week Ten
 
