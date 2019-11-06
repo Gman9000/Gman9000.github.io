@@ -58,6 +58,11 @@ Controls:
 Here is the link to Homework #7 [CLICK HERE](https://Gman9000.github.io/The-Creative-Web-Sound-HW2/classes/class7/examples/class7notes.html) to view
 
 # Week Nine
+Controls: 
+- MIDI controller with 16 buttons and gyroscope in it 
+- tilting the controller will move the object in different directions
+- pressing the bottom left hand corner button will start and stop the music
+Here is the link to Homework #8 [CLICK HERE](https://Gman9000.github.io/The-Creative-Web-MIDI-CLASSWORK/classes/class8/examples/midi-three.html) to view
 # Week Ten
 
 
