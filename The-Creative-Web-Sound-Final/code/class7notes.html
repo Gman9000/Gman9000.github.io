@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Introduction to Three.js - Raycasting</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/108/three.js"></script>
+    <script src="orbit.js"></script>
+
+    <script src="vendor/three.js/Detector.js"></script>
+    <script src="vendor/threex/THREEx.FullScreen.js"></script>
+    <script src="vendor/threex/THREEx.WindowResize.js"></script>
+    <script src="https://unpkg.com/tone"></script>
+    <script src="./Three.Tone.js"></script>
+
+    <style>
+      body {
+        overflow: hidden;
+        padding: 0;
+        margin: 0;
+
+        color: #222;
+        background: linear-gradient(to bottom, #eee 0%, #ccc 100%);
+        font-family: monospace;
+        font-size: 100%;
+      }
+      #info .top {
+        position: absolute;
+        top: 0px;
+        width: 100%;
+        padding: 5px;
+        text-align: center;
+      }
+      #info a {
+        color: #66f;
+        text-decoration: none;
+      }
+      #info a:hover {
+        text-decoration: underline;
+      }
+      #info .bottom {
+        position: absolute;
+        bottom: 0px;
+        right: 5px;
+        padding: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- three.js container -->
+    <div id="container"></div>
+    <div id="info">
+      <p class="top">
+        Click on the "Turn On Audio" button to start the music experience
+        <button onclick="toggleAudio()">Turn On Audio</button>
+      </p>
+    </div>
+    <!-- info on screen display -->
+
+    <script type="text/javascript">
+      /*
+			Three.js Setup
+		*/
+
+      //<script src="three-trackballcontrols.js">
+
+      //<script src="https://cdn.jsdelivr.net/npm/three-trackballcontrols-web@0.0.2/dist/three-trackballcontrols.js">
+
+      var stats, scene, renderer;
+      var camera, shouldRaycast;
+      var spheres = [];
+      var song1, song2, song3, song4, material, mesh1, mesh2, mesh3, mesh4;
+
+      var cameraTarget = new THREE.Vector3(1, 1, 1);
+      //var cameraTarget;
+      var raycaster = new THREE.Raycaster();
+      var mouse = new THREE.Vector2();
+      var currentMesh;
+      var spinSpeed = 0;
+      var cameraZOffset = 1;
+      var cameraYOffset = 1;
+      var cameraXOffset = 1;
+      var xSpeed = 0.3;
+      var ySpeed = 0.3;
+      var zSpeed = 0.3;
+      var xMaxBoundary = 20;
+      var xMinBoundary = -20;
+      var yMinBoundary = 0;
+      var yMaxBoundary = 10;
+      var zMaxBoundary = 30;
+      var zMinBoundary = -20;
+      var updateControls = true;
+
+      /*
+			Tone.js Setup
+		*/
+
+      // Create a player and set it to autoplay
+      var leadVox1Music = new Tone.Panner3D().toMaster();
+      var leadVox1Player = new Tone.Player({
+        url: "14_LeadVox1.wav",
+        loop: true
+      })
+        .connect(leadVox1Music)
+        .sync()
+        .start(0);
+
+      var snareMusic = new Tone.Panner3D().toMaster();
+      var snarePlayer = new Tone.Player({
+        url: "02_Snare.wav",
+        loop: true
+      })
+        .connect(snareMusic)
+        .sync()
+        .start(0);
+
+      var overheadsMusic = new Tone.Panner3D().toMaster();
+      var overheadsPlayer = new Tone.Player({
+        url: "03_Overheads.wav",
+        loop: true
+      })
+        .connect(overheadsMusic)
+        .sync()
+        .start(0);
+
+      var tom2Music = new Tone.Panner3D().toMaster();
+      var tom2Player = new Tone.Player({
+        url: "05_Tom2.wav",
+        loop: true
+      })
+        .connect(tom2Music)
+        .sync()
+        .start(0);
+
+      var bassMusic = new Tone.Panner3D().toMaster();
+      var bassPlayer = new Tone.Player({
+        url: "07_Bass.wav",
+        loop: true
+      })
+        .connect(bassMusic)
+        .sync()
+        .start(0);
+
+      var kickTriggerMusic = new Tone.Panner3D().toMaster();
+      var kickTriggerPlayer = new Tone.Player({
+        url: "01_KickTrigger.wav",
+        loop: true
+      })
+        .connect(kickTriggerMusic)
+        .sync()
+        .start(0);
+
+      var elecGtr1Music = new Tone.Panner3D().toMaster();
+      var elecGtr1Player = new Tone.Player({
+        url: "08_ElecGtr1.wav",
+        loop: true
+      })
+        .connect(elecGtr1Music)
+        .sync()
+        .start(0);
+
+      var elecGtr4Music = new Tone.Panner3D().toMaster();
+      var elecGtr4Player = new Tone.Player({
+        url: "11_ElecGtr4.wav",
+        loop: true
+      })
+        .connect(elecGtr4Music)
+        .sync()
+        .start(0);
+      // create analyzers
+      const meter = new Tone.Meter(32); // argument is smoothing factor
+      const fft = new Tone.FFT(32);
+      const waveform = new Tone.Waveform(32);
+
+      // connect destination to analyzers
+      Tone.Master.chain(meter, fft, waveform);
+
+      // Start the Tone.js transport (like hitting play)
+      Tone.Transport.start();
+
+      function toggleAudio() {
+        Tone.context.resume();
+        Tone.Transport.start(0);
+        //player.state === "stopped" ? player.start() : player.stop();
+      }
+
+      /*
+			Bootstrap
+		*/
+
+      // Bootstrap the animation
+      init();
+      animate();
+
+      function createPlayer() {
+        // this is to control the playerMesh Object
+        document.addEventListener("keydown", onDocumentKeyDown, false);
+        function onDocumentKeyDown(event) {
+          // Get the key code of the pressed key
+          var keyCode = event.which;
+          //shouldRaycast = false;
+          updateControls = false;
+          // moving up Z
+          if (keyCode == 38) {
+            if (camera.position.z > zMinBoundary) {
+              camera.position.set(
+                camera.position.x,
+                camera.position.y,
+                camera.position.z - zSpeed
+                //because of our orientation moving up is actually going down in z value
+              );
+            }
+
+            // moving down Z
+          } else if (keyCode == 40) {
+            if (camera.position.z < zMaxBoundary) {
+              camera.position.set(
+                camera.position.x,
+                camera.position.y,
+                camera.position.z + zSpeed
+              );
+            }
+
+            // moving left x
+          } else if (keyCode == 37) {
+            if (camera.position.x > xMinBoundary) {
+              camera.position.set(
+                camera.position.x - xSpeed,
+                camera.position.y,
+                camera.position.z
+              );
+            }
+
+            // moving right x
+          } else if (keyCode == 39) {
+            if (camera.position.x < xMaxBoundary) {
+              camera.position.set(
+                camera.position.x + xSpeed,
+                camera.position.y,
+                camera.position.z
+              );
+            }
+          }
+
+          // moving up y pressing shift
+          else if (keyCode == 16) {
+            if (camera.position.y < yMaxBoundary) {
+              camera.position.set(
+                camera.position.x,
+                camera.position.y + ySpeed,
+                camera.position.z
+              );
+            }
+          }
+
+          //moving down y pressing ctrl
+          else if (keyCode == 17) {
+            if (camera.position.y > yMinBoundary) {
+              camera.position.set(
+                camera.position.x,
+                camera.position.y - ySpeed,
+                camera.position.z
+              );
+            }
+          }
+          updateControls = true;
+          // camera.position.set(
+          //   playerMesh.position.x,
+          //   playerMesh.position.y + cameraYOffset,
+          //   playerMesh.position.z + cameraZOffset
+          // );
+
+          if (Math.abs(camera.position.x - cameraTarget.x) >= 0.5) {
+            cameraTarget = new THREE.Vector3(
+              camera.position.x + cameraXOffset,
+              cameraTarget.y,
+              cameraTarget.z
+            );
+          } else if (Math.abs(camera.position.y - cameraTarget.y) >= 0.5) {
+            cameraTarget = new THREE.Vector3(
+              cameraTarget.x,
+              camera.position.y + cameraYOffset,
+              cameraTarget.z
+            );
+          } else if (Math.abs(camera.position.z - cameraTarget.z) >= 0.5) {
+            cameraTarget = new THREE.Vector3(
+              cameraTarget.x,
+              cameraTarget.y,
+              camera.position.z + cameraZOffset
+            );
+          }
+          Tone.Listener.updatePosition(camera);
+          cameraControls.target.set(
+            camera.position.x,
+            camera.position.y,
+            camera.position.z
+          );
+          //camera.lookAt(cameraTarget);
+        }
+      }
+
+      function createGeometry() {
+        song1 = new THREE.SphereGeometry(0.5, 0.5, 0.5);
+        // Create a new material for every mesh so we can color them separately
+        material = new THREE.MeshPhongMaterial({
+          color: Math.random() * 0xffffff
+        });
+        material.flatShading = true;
+        mesh1 = new THREE.Mesh(song1, material);
+        mesh1.position.set(0, 0.25, 0);
+        mesh1.rotation.set(0.5, 0.5, 0.5);
+        mesh1.n = Math.random();
+
+        scene.add(mesh1);
+        spheres.push(mesh1);
+
+        song2 = new THREE.SphereGeometry(0.5, 0.5, 0.5);
+        // Create a new material for every mesh so we can color them separately
+        material = new THREE.MeshPhongMaterial({
+          color: Math.random() * 0xffffff
+        });
+        material.flatShading = true;
+        mesh2 = new THREE.Mesh(song2, material);
+        mesh2.position.set(-15, 0.25, -15);
+        mesh2.rotation.set(0.5, 0.5, 0.5);
+        mesh2.n = Math.random();
+
+        scene.add(mesh2);
+        spheres.push(mesh2);
+
+        song3 = new THREE.SphereGeometry(0.5, 0.5, 0.5);
+        // Create a new material for every mesh so we can color them separately
+        material = new THREE.MeshPhongMaterial({
+          color: Math.random() * 0xffffff
+        });
+        material.flatShading = true;
+        mesh3 = new THREE.Mesh(song3, material);
+        mesh3.position.set(-10, 0.25, -10);
+        mesh3.rotation.set(0.5, 0.5, 0.5);
+        mesh3.n = Math.random();
+
+        scene.add(mesh3);
+        spheres.push(mesh3);
+
+        song4 = new THREE.SphereGeometry(0.5, 0.5, 0.5);
+        // Create a new material for every mesh so we can color them separately
+        material = new THREE.MeshPhongMaterial({
+          color: Math.random() * 0xffffff
+        });
+        material.flatShading = true;
+        mesh4 = new THREE.Mesh(song4, material);
+        mesh4.position.set(-5, 0.25, -5);
+        mesh4.rotation.set(0.5, 0.5, 0.5);
+        mesh4.n = Math.random();
+
+        scene.add(mesh4);
+        spheres.push(mesh4);
+
+        song5 = new THREE.SphereGeometry(0.5, 0.5, 0.5);
+        // Create a new material for every mesh so we can color them separately
+        material = new THREE.MeshPhongMaterial({
+          color: Math.random() * 0xffffff
+        });
+        material.flatShading = true;
+        mesh5 = new THREE.Mesh(song5, material);
+        mesh5.position.set(6, 0.25, 6);
+        mesh5.rotation.set(0.5, 0.5, 0.5);
+        mesh5.n = Math.random();
+
+        scene.add(mesh5);
+        spheres.push(mesh5);
+        
+        song6 = new THREE.SphereGeometry(0.5, 0.5, 0.5);
+        // Create a new material for every mesh so we can color them separately
+        material = new THREE.MeshPhongMaterial({
+          color: Math.random() * 0xffffff
+        });
+        material.flatShading = true;
+        mesh6 = new THREE.Mesh(song6, material);
+        mesh6.position.set(12, 0.25, 12);
+        mesh6.rotation.set(0.5, 0.5, 0.5);
+        mesh6.n = Math.random();
+
+        scene.add(mesh6);
+        spheres.push(mesh6);
+
+        song7 = new THREE.SphereGeometry(0.5, 0.5, 0.5);
+        // Create a new material for every mesh so we can color them separately
+        material = new THREE.MeshPhongMaterial({
+          color: Math.random() * 0xffffff
+        });
+        material.flatShading = true;
+        mesh7 = new THREE.Mesh(song7, material);
+        mesh7.position.set(18, 0.25, 18);
+        mesh7.rotation.set(0.5, 0.5, 0.5);
+        mesh7.n = Math.random();
+
+        scene.add(mesh7);
+        spheres.push(mesh7);
+
+        song8 = new THREE.SphereGeometry(0.5, 0.5, 0.5);
+        // Create a new material for every mesh so we can color them separately
+        material = new THREE.MeshPhongMaterial({
+          color: Math.random() * 0xffffff
+        });
+        material.flatShading = true;
+        mesh8 = new THREE.Mesh(song7, material);
+        mesh8.position.set(-20, 0.25, -20);
+        mesh8.rotation.set(0.5, 0.5, 0.5);
+        mesh8.n = Math.random();
+
+        scene.add(mesh8);
+        spheres.push(mesh8);
+      }
+
+      function createGrid() {
+        //i had to google how to do this properly.
+        //increase the steps to make squares bigger. must be divisible by the size
+        var size = 20,
+          steps = 2;
+
+        geometry = new THREE.Geometry();
+        material = new THREE.LineBasicMaterial({
+          color: "red"
+        });
+
+        for (var i = -size; i <= size; i += steps) {
+          //draw lines one way
+          geometry.vertices.push(new THREE.Vector3(-size, -0.04, i));
+          geometry.vertices.push(new THREE.Vector3(size, -0.04, i));
+
+          //draw lines the other way
+          geometry.vertices.push(new THREE.Vector3(i, -0.04, -size));
+          geometry.vertices.push(new THREE.Vector3(i, -0.04, size));
+        }
+
+        //THREE.LinePieces prevents connecting of vertices
+        var line = new THREE.LineSegments(geometry, material, THREE.LinePieces);
+        scene.add(line);
+      }
+
+      var THREEx = THREEx || {};
+
+      function createRenderer() {
+        renderer = new THREE.WebGLRenderer({
+          antialias: true, // to get smoother output
+          alpha: true
+          //preserveDrawingBuffer: true // to allow screenshot
+        });
+
+        renderer.setClearColor(0x00CCFF, 1);
+        renderer
+        //0x19192270
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        // Append the renderer's <canvas> element to the screen
+        document.getElementById("container").appendChild(renderer.domElement);
+
+        // Resize canvas when the screen resizes
+        document.addEventListener(
+          "resize",
+          function() {
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+            renderer.setSize(width, height);
+          },
+          false
+        );
+      }
+
+      function createCamera() {
+        // put a camera in the scene
+        camera = new THREE.PerspectiveCamera(
+          45,
+          window.innerWidth / window.innerHeight,
+          1,
+          10000
+        );
+        camera.position.set(0, 5, 30);
+
+        scene.add(camera);
+        // create a camera contol
+        cameraControls = new THREE.OrbitControls(camera);
+        //manipulation of the internal properties of the camera
+        //set the initial listener to the camera position
+        Tone.Listener.updatePosition(camera);
+      }
+
+      function createLights() {
+        // Add lights to the scene
+        //parameter 1: sky is blueish
+        //parameter 2: ground and shadowy effects are lime greenish
+        //var light = new THREE.HemisphereLight(0x0000ff, 0x00ff00, 0.4);
+        //scene.add(light);
+
+        // THESE ARE LIGHTS FROM CLASSWORK.
+        var light = new THREE.AmbientLight(0xffff00, 0.5);
+        scene.add(light);
+
+        var light = new THREE.DirectionalLight(Math.random() * 0xffffff);
+        light.position
+          .set(Math.random(), Math.random(), Math.random())
+          .normalize();
+        scene.add(light);
+
+        var light = new THREE.DirectionalLight(Math.random() * 0xffffff);
+        light.position
+          .set(Math.random(), Math.random(), Math.random())
+          .normalize();
+        scene.add(light);
+      }
+
+      // init the scene
+      function init() {
+        // create the root scene
+        scene = new THREE.Scene();
+
+        createRenderer();
+        createCamera();
+
+        // // transparently support window resize (press `f`)
+        THREEx.WindowResize.bind(renderer, camera);
+        THREEx.FullScreen.bindKey();
+
+        createLights();
+
+        createPlayer();
+        createGrid();
+
+        createGeometry();
+      }
+
+      // animation loop
+      function animate() {
+        var r = Date.now() * 0.0005;
+
+        //from back left to front right
+        mesh8.position.x = 20 * Math.cos(r);
+        mesh2.position.x = 14 * Math.cos(r);
+        mesh3.position.x = 9 * Math.cos(r);
+        mesh4.position.x = 5 * Math.cos(r);
+        mesh1.position.x = 2 * Math.cos(r);
+        mesh5.position.x = -5 * Math.cos(r);
+        mesh6.position.x = -9 * Math.cos(r);
+        mesh7.position.x = -14 * Math.cos(r);
+        // Call the function again when the browser is free
+        requestAnimationFrame(animate);
+
+        // do the render
+        render();
+        leadVox1Music.updatePosition(mesh1);
+        snareMusic.updatePosition(mesh2);
+        overheadsMusic.updatePosition(mesh3);
+        tom2Music.updatePosition(mesh4);
+        bassMusic.updatePosition(mesh5);
+        kickTriggerMusic.updatePosition(mesh6);
+        elecGtr1Music.updatePosition(mesh7);
+        elecGtr4Music.updatePosition(mesh8);
+        // electricGuitar.updatePosition(mesh6);
+        // bassMusic.updatePosition(mesh7);
+      }
+
+      // render the scene
+      function render() {
+        // Get audio analysis values
+        const level = meter.getValue();
+        const freqDomain = fft.getValue();
+        const timeDomain = waveform.getValue();
+
+        // variable which is increase by Math.PI every seconds - usefull for animation
+        var time = Date.now() * Math.PI;
+
+        spheres.forEach((sphere, i) => {
+          // Rotate object based on `n` coefficient
+          sphere.rotateY(0.01 * sphere.n);
+          sphere.rotateX(0.02 * sphere.n);
+          sphere.rotateZ(0.03 * sphere.n);
+
+          // set scale according to current audio level in frequency bin
+          const s = 0.75 + -60 / freqDomain[i];
+          sphere.scale.set(s, s, s);
+
+          // set color according to current audio level in time domain
+          const c = Math.abs(timeDomain[i]) / 15;
+          sphere.material.color.offsetHSL(c, 0, 0);
+        });
+        // update camera controls
+        if (updateControls) {
+          cameraControls.update();
+        }
+
+        // actually render the scene
+        renderer.render(scene, camera);
+      }
+
+      // window.addEventListener("mousemove", function(event) {
+      //   // calculate mouse position in normalized device coordinates
+      //   // (-1 to +1) for both components
+      //   mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+      //   mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+      // });
+
+      // window.addEventListener("mousedown", function(event) {
+      //   shouldRaycast = true;
+      // });
+
+      // window.addEventListener("mouseup", function(event) {
+      //   shouldRaycast = false;
+      // });
+    </script>
+  </body>
+</html>

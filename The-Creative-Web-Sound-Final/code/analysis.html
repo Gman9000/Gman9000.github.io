@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+    <script src="https://unpkg.com/@webcomponents/webcomponentsjs@^2/webcomponents-bundle.js"></script>
+    <script src="https://unpkg.com/tone"></script>
+    <script src="https://unpkg.com/@tonejs/ui"></script>
+</head>
+<body>
+        <tone-demo autoplay>
+            <tone-microphone></tone-microphone>
+            <tone-oscilloscope style="width:400px; height:50px;margin-bottom: 50px;"></tone-oscilloscope>
+            <tone-meter style="width:400px; height:50px;margin-top: 50px;"></tone-meter>
+            <tone-fft style="width:400px; height:50px;margin-top: 50px;"></tone-fft>
+        </tone-demo>
+
+        <span style="font-weight: bold; position: absolute; bottom: 20px; left: calc(50% - 1em); font-size: 2em;">
+            <span class="note">Audio Level</span>
+        </span>
+    <script>
+		//you probably DONT want to connect the microphone
+		//directly to the master output because of feedback.
+		const mic = new Tone.UserMedia();
+
+        //opening the input asks the user to activate their mic
+        mic.open()
+            .then(function(){
+                //promise resolves when input is available
+            })
+            .catch(function(){
+                //promise rejects if the input is unavailable
+            });
+
+        // create an FFT and Waveform analyzer
+        const fft = new Tone.FFT(32) // minimum fft bucket size is 16
+        const waveform = new Tone.Waveform(32) // minimum bucket size for waveform is 32
+        const meter = new Tone.Meter()
+
+        // Connect the microphone input to both analyzers
+        mic.connect(fft)
+        mic.connect(waveform)
+        mic.connect(meter)
+
+        // let's define a small animation loop that will get the analysis values
+        function analyze() {
+            // console.log('Meter - ' + meter.getValue())
+            // console.log('FFT - ' + fft.getValue())
+            console.log('Waveform - ' + waveform.getValue())
+
+            // Call another run of the analyze update
+            requestAnimationFrame(analyze)
+        }
+
+        requestAnimationFrame(analyze)
+
+        // Demo related stuff, ignore this
+        document.querySelector("tone-fft")._fft = fft;
+
+
+		//bind the interface
+		document.querySelector("tone-microphone").bind(mic);
+		document.querySelector("tone-oscilloscope").bind(mic);
+        document.querySelector("tone-meter").bind(mic);
+        document.querySelector("tone-fft").bind(mic);
+    </script>
+</body>
+</html>
