@@ -81,7 +81,7 @@ Controls:
 -you can move around in a 3d grid and listen to 8 components of the same song as they move about in the space
 -concept: spatialization of songs in a 3d space. a visual spotify experience
 -if you near an object that component of the song will play more than the other songs in the other objects
-Here is the link to my final [CLICK HERE](https://Gman9000.github.io/The-Creative-Web-Sound-Final/code/class7notes.html) to view
+Here is the link to my final [CLICK HERE](https://Gman9000.github.io/The-Creative-Web-Sound-Final/code/soundSpacializationFinal.html) to view
 
 
 
