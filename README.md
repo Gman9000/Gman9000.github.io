@@ -63,7 +63,26 @@ Controls:
 - tilting the controller will move the object in different directions
 - pressing the bottom left hand corner button while the second button in the top row of buttons are highlighted will start and stop the music
 Here is the link to Homework #8 [CLICK HERE](https://Gman9000.github.io/The-Creative-Web-MIDI-CLASSWORK/classes/class8/examples/midi-three.html) to view
-# Week Ten
+# Week ten
+-SKIPPED DUE TO LEARNING THE TOPICS
+# Week eleven
+-SKIPPED DUE TO LEARNING THE TOPICS
+
+# Week twelve
+
+Controls: 
+- up arrow: moves up the Z plane 
+- Down arrow: moves down the Z plane 
+- left arrow: move leftwards on the x plane
+- right arrow: moves rightwards on the x plane
+- shift key: moves up the y plane vertically
+- ctrl key: moves down the y plane vertically
+-Muiscal interaction
+-you can move around in a 3d grid and listen to 8 components of the same song as they move about in the space
+-concept: spatialization of songs in a 3d space. a visual spotify experience
+-if you near an object that component of the song will play more than the other songs in the other objects
+Here is the link to my final [CLICK HERE](https://Gman9000.github.io/The-Creative-Web-Sound-Final/code/class7notes.html) to view
+
 
 
 
