@@ -179,10 +179,10 @@
       Tone.Master.chain(meter, fft, waveform);
 
       // Start the Tone.js transport (like hitting play)
-      Tone.Transport.start();
+      //Tone.Transport.start();
 
       function toggleAudio() {
-        Tone.context.resume();
+        //Tone.context.resume();
         Tone.Transport.start(0);
         //player.state === "stopped" ? player.start() : player.stop();
       }
